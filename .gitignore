@@ -6,10 +6,9 @@
 /VseISiteParser/obj
 /packages/
 /ParserService/
-/Domain/
 /GUI/
 /TstApplication/
 /VseISiteParser/
 favicon.ico
-VseISiteParser.sln
+MainScripts.sql
 *.txt
