@@ -6,7 +6,8 @@
 /VseISiteParser/obj
 /packages/
 /ParserService/
-/GUI/
+/GUI/bin
+/GUI/obj
 /TstApplication/
 *.ico
 MainScripts.sql
