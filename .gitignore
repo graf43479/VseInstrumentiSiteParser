@@ -8,7 +8,7 @@
 /ParserService/
 /GUI/
 /TstApplication/
-/VseISiteParser/
-favicon.ico
+*.ico
 MainScripts.sql
 *.txt
+*.exe
