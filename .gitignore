@@ -1,0 +1,16 @@
+
+/.vs/*
+/Domain/bin
+/Domain/obj
+/VseISiteParser/bin
+/VseISiteParser/obj
+/packages/
+/ParserService/
+/Domain/
+/GUI/
+/TstApplication/
+/VseISiteParser/
+favicon.ico
+MainScripts.sql
+VseISiteParser.sln
+*.txt
