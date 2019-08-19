@@ -55,7 +55,7 @@
                     </Grid.ColumnDefinitions>
                     <DockPanel HorizontalAlignment="Left" Height="60" LastChildFill="False" Margin="10,10,0,0" VerticalAlignment="Top" Width="1320" RenderTransformOrigin="0.502,0.135" Grid.ColumnSpan="6">
                         <TextBox x:Name="TextBoxSearchPriceDynamic" Height="23" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="537" Margin="0,16,0,0" RenderTransformOrigin="0.498,-0.083"/>
-                        <CheckBox x:Name="CheckBoxChoosenDaily" Content="За последние 5 дней/месяцев" Height="23" Checked="CheckBox_Checked" Width="189" Margin="0,16,0,21" VerticalAlignment="Center" Padding="4.8,0,0,0" HorizontalAlignment="Center"/>
+                        <CheckBox x:Name="CheckBoxChoosenDaily" Content="За последние 7 дней/(месяцев)" Height="23" Checked="CheckBox_Checked" Width="189" Margin="0,16,0,21" VerticalAlignment="Center" Padding="4.8,0,0,0" HorizontalAlignment="Center" IsChecked="True"/>
                         <CheckBox x:Name="CheckBoxFavorites" Content="Избранное" Height="23" Checked="CheckBox_Checked" Width="97" Margin="0,16,0,21" VerticalAlignment="Center" Padding="4.8,0,0,0" HorizontalAlignment="Center"/>
                         <CheckBox x:Name="CheckBoxDynamicOnly" Content="Динамичное" Height="23" Checked="CheckBox_Checked" Width="97" Margin="0,16,0,21" VerticalAlignment="Center" Padding="4.8,0,0,0" HorizontalAlignment="Center"/>
                         <Button Content="Искать" Height="23" VerticalAlignment="Bottom" Width="194" Click="Button_Click_2" Margin="0,0,0,21"/>

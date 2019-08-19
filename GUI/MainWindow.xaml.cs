@@ -134,12 +134,16 @@ namespace GUI
             var defs = DataGridPriceDynamic.Columns;
 
             int i = 0;
+
+            List<DateTime> dates = await dbLoader.GetDatesAsync(isDaily);
+
             foreach (var item in defs)
             {
                 if (item.Header.ToString().Contains("Date"))
                 {
-                    
-                    item.Header = "Дата" + i;
+
+                    //item.Header = "Дата" + i;
+                    item.Header = dates[i].Date.ToString("dd.MM.yyyy");
                     i++;
                 }
                 

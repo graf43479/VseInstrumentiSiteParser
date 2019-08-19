@@ -97,6 +97,26 @@ namespace GUI
         }
 
 
+        public async Task<List<DateTime>> GetDatesAsync(bool isDaily)
+        {
+            if (isDaily)
+            {
+                return await statisticRepository.Statistics.OrderByDescending(x => x.CreationDate).Take(7).OrderBy(x=>x.CreationDate).Select(x => x.CreationDate).ToListAsync(); //priceRepository.GetDynamic(isDaily, isFavorite, isNonConst, searchText);
+            }
+            else
+            {
+                DateTime date = DateTime.Now;
+                List<DateTime> dates = new List<DateTime>();
+                for (int i = 0; i < 7; i++)
+                {
+                    dates.Add(DateTime.Now.AddMonths(-i));
+                }
+
+
+                return dates.OrderBy(x=>x).ToList();
+            }
+        }
+
         //internal List<PriceDynamicModel> GetPriceDynamicModels(string text, IEnumerable<TwoDaysPriceDiffereceModel> model)
         //{
         //  //  return model;
