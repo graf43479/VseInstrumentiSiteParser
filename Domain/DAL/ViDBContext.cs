@@ -13,7 +13,8 @@ namespace Domain.DAL
 
         static ViDBContext()
         {
-             //Database.SetInitializer<ViDBContext>(new ViDBInitializer());
+            //Database.SetInitializer<ViDBContext>(new ViDBInitializer());
+            Database.SetInitializer<ViDBContext>(null);
         }
 
         public DbSet<Product> Products { get; set; }

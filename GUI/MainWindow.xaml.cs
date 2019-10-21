@@ -22,6 +22,7 @@ using OxyPlot;
 using System.Reflection;
 using OxyPlot.Axes;
 using OxyPlot.Series;
+using System.Diagnostics;
 
 namespace GUI
 {
@@ -40,8 +41,6 @@ namespace GUI
             dateEnd.SelectedDate = DateTime.Now;
 
             dbLoader = new DBLoader(new ViDBContext());
-
-
         }
 
         private void CheckBox_Checked(object sender, RoutedEventArgs e)
@@ -49,12 +48,9 @@ namespace GUI
 
         }
 
-        private async void Button_Click(object sender, RoutedEventArgs e)
+        private async void ButtonDateDiffDiscount_Click(object sender, RoutedEventArgs e)
         {
-            //IEnumerable<VendorProductCountModel> productCounts = dbLoader.GetVendorProductCount().ToList();
-            //VendorCountDataGrid.ItemsSource = productCounts.ToList(); // dbLoader.GetVendorProductCount();
-
-            //IEnumerable<TwoDaysPriceDiffereceModel> some = dbLoader.GetDiffernce(DateTime.Now.Subtract(new TimeSpan(1, 0, 0, 0)), DateTime.Now, 1, true).ToList() ;
+            ButtonDateDiffDiscount.IsEnabled = false;
             if (dateStart.SelectedDate == null || dateEnd.SelectedDate == null)
             {
                MessageBox.Show("Некорректные даты!");
@@ -62,7 +58,6 @@ namespace GUI
             else
             {
                 LoaderRect1.Visibility = Visibility.Visible;                
-                //Thread.Sleep(2000);
                 IEnumerable<TwoDaysPriceDiffereceModel> some = await dbLoader.GetDiffernceAsync(
                                                         dateStart.SelectedDate ?? DateTime.Now.Subtract(new TimeSpan(1,0,0,0)), 
                                                         dateEnd.SelectedDate ?? DateTime.Now , 
@@ -71,18 +66,19 @@ namespace GUI
                                                         );
 
                 TwoDaysDifferenceDataGrid.ItemsSource = some;
-                LoaderRect1.Visibility = Visibility.Collapsed;
-                //int someCount = some.Count();
+                LoaderRect1.Visibility = Visibility.Collapsed;            
             }
+            ButtonDateDiffDiscount.IsEnabled = true;
         }
 
-        private void Button_Click_1(object sender, RoutedEventArgs e)
+        private void ButtonSearchClick(object sender, RoutedEventArgs e)
         {
+            this.ButtonSearch.IsEnabled = false;
             if (!String.IsNullOrEmpty(TextBoxSearch.Text))
-            {
-                
+            {                
                 DataGridSearched.ItemsSource = dbLoader.GetSearchResult(TextBoxSearch.Text);
             }
+            this.ButtonSearch.IsEnabled = true;
         }
 
         private async void DataGridSearched_MouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -106,21 +102,16 @@ namespace GUI
                 if (result == MessageBoxResult.Yes)
                 {
                     await dbLoader.SaveFavoriteAsync(model);
-                    //8
-                    //dgv.UpdateLayout();
-                    ButtonAutomationPeer peer = new ButtonAutomationPeer(SearchButton);
+                    ButtonAutomationPeer peer = new ButtonAutomationPeer(ButtonSearch);
                     IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
                     invokeProv.Invoke();
-                    //SearchButton.Click();
-
-                }
-               // MessageBox.Show(model.Code.ToString());
-            }
-         
+                }               
+            }         
         }
 
-        private async void Button_Click_2(object sender, RoutedEventArgs e)
+        private async void Button_ButtonGraphic(object sender, RoutedEventArgs e)
         {
+            ButtonGraphic.IsEnabled = false;
             bool isDaily = (bool)CheckBoxChoosenDaily.IsChecked;
             bool isFavorite = (bool)CheckBoxFavorites.IsChecked;
             bool isNonConst = (bool)CheckBoxDynamicOnly.IsChecked;
@@ -148,6 +139,7 @@ namespace GUI
                 }
                 
             }
+            ButtonGraphic.IsEnabled = true;
 
         }
 
@@ -220,11 +212,46 @@ namespace GUI
                     MainChart.Model.InvalidatePlot(true);
                 }
             }
-            
-
-           
         }
 
-      
+        private async Task GetUrlAsync(int code)
+        {
+            string url = await dbLoader.GetUrlAsync(code);
+            if (!String.IsNullOrEmpty(url))
+            {
+                Process.Start(url);
+            }
+         }
+        
+
+        private async void DataGridPriceDynamic_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            DataGrid dgv = (DataGrid)sender;
+            PriceDynamicModel model = (PriceDynamicModel)dgv.SelectedItem;
+            await GetUrlAsync(model.Code);
+
+            //MessageBox.Show(model.Code.ToString());
+        }
+
+        private async void TwoDaysDifferenceDataGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            DataGrid dgv = (DataGrid)sender;
+            TwoDaysPriceDiffereceModel model = (TwoDaysPriceDiffereceModel)dgv.SelectedItem;
+            await GetUrlAsync(model.Code);
+        }       
+
+        //TODO реализовать удаление вендора
+        private void DataGridVendorForDelete_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+
+        }
+
+        //TODO реализовать добавление нового вендора
+
+        private async void TabItem_Loaded(object sender, RoutedEventArgs e)
+        {
+            var some = await dbLoader.GetVendorsAsync();
+            DataGridVendors.ItemsSource = some;
+        }
     }
 }

@@ -20,6 +20,7 @@ namespace Domain.ExtensionMethods
             productOrigin.Responses = product.Responses;
             productOrigin.State = product.State;
             productOrigin.VendorID = product.VendorID;
+            productOrigin.Url = product.Url;
 
             return productOrigin;
         }
@@ -62,7 +63,8 @@ namespace Domain.ExtensionMethods
                 Responses = product.Responses,
                 IsFavorite = (product.IsFavorite) ? "❤" : "-",
                 IsSale = (product.IsSale) ? "Скидки" : "-",
-                State = (product.State) ? "Есть" : "Нет"
+                State = (product.State) ? "Есть" : "Нет",
+                Url = product.Url
             };
         }
 

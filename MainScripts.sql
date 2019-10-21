@@ -433,6 +433,7 @@ set @query = 'SELECT Vendor, Name, ' + @cols + '
 
 	SET @dateStart = GETDATE()-2
 	SET @dateEnd = GETDATE() -1 
+	
 	exec GetTwoDaysChanges @param1=@dateStart, @param2=@dateEnd, @paramPercent=25, @paramChoosen=0
 
 	
@@ -498,10 +499,10 @@ AS
 			--SET @chosen = convert(NVARCHAR(MAX),@paramChoosen)
 	------------------------------------------------------------------------------------------------------------	
 	------------------------------------------------------------------------------------------------------------
-	set @query = 'SELECT Vendor, Name, ' + @cols + ' 
+	set @query = 'SELECT Vendor, Code, Name, ' + @cols + ' 
             FROM 
 			(
-				SELECT v.Name as Vendor, p.Name as Name, s.CreationDate as CreationDate, pr.PriceValue as PriceValue
+				SELECT v.Name as Vendor, p.Code as Code, p.Name as Name, s.CreationDate as CreationDate, pr.PriceValue as PriceValue
 				FROM Price pr
 				INNER JOIN Product p ON pr.ProductID=p.ProductID
 				INNER JOIN Statistic s ON s.StatisticID=pr.StatisticID
@@ -516,7 +517,7 @@ AS
 
 	------------------------------------------------------------------------------------------------------------
 	------------------------------------------------------------------------------------------------------------
-	SET @query3 = 'SELECT Vendor, Name, ' + @colsNames + ' 
+	SET @query3 = 'SELECT Vendor, Code, Name, ' + @colsNames + ' 
 				FROM (' + @query + ') m
 				WHERE ' + @dateStart + '<>' +@dateEnd+ 
 				'AND '+@dateStart  + '<> 0 AND '+@dateEnd  + '<>0 ' +
@@ -928,3 +929,14 @@ AS
 
 
 
+
+			Select * from Product
+
+			Select count(*) from Product
+			Union ALL
+			Select count(*) from Product p
+			where p.[Url] is null
+
+
+			Select * from Product p
+			where p.UpdateDate!='2019-09-11'

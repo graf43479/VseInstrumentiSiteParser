@@ -69,9 +69,9 @@ namespace VseInstrumenti.Core
                 Task t = WorkerAsync();
                 t.Wait();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                EmailNotifier.CreateMessage("Ошибка при парсинге!", "Error"); 
+                EmailNotifier.CreateMessage("Ошибка при парсинге! " + ex.InnerException.Message, "Error"); 
                 throw;
             }
         }
@@ -108,8 +108,17 @@ namespace VseInstrumenti.Core
                                 return;
                             }
                             //Console.WriteLine(i);
-
-                        string htmlResult = loader.GetSource(vendor.SubUrl, i, parserSettings.SortList[j], IsPlanA);
+                            string htmlResult = "";
+                            try
+                            {
+                                htmlResult = loader.GetSource(vendor.SubUrl, i, parserSettings.SortList[j], IsPlanA);
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine($"Ошибка загрузки страницы: {ex.Message}");
+                                goto retry2;
+                            }
+                            
                         var domParser = new HtmlParser();
                         var document = await domParser.ParseDocumentAsync(htmlResult.ToString());
                         
@@ -164,7 +173,7 @@ namespace VseInstrumenti.Core
                             }
 
                             // Statistic statistic = dbLoader.CreateStatistic();
-                            dbLoader.LoadProductList(newResult);
+                           dbLoader.LoadProductList(newResult); 
 
                             //statistic.Status = snapshotState;
                             //dbLoader.SaveStatistic(statistic);
@@ -182,7 +191,7 @@ namespace VseInstrumenti.Core
                 retry2:;
                 }
 
-                await dbLoader.MakePriceSnapshotAsync();
+               await dbLoader.MakePriceSnapshotAsync();
                // Parallel.Invoke( async () => { await dbLoader.MakePriceSnapshotAsync(); });                
             }
 

@@ -23,6 +23,8 @@ namespace Domain.Model
 
         public string State { get; set; }
 
+        public string Url { get; set; }
+
 
         public string IsSale { get; set; }
 

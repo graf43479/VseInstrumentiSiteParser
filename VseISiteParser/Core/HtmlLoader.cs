@@ -13,6 +13,8 @@ namespace VseInstrumenti.Core
         readonly string  url;
         public ChromeDriver driver;
 
+        bool isFirst = true;
+
         public HtmlLoader(IParserSettings settings)
         {
             url = $"{settings.BaseURL}/{settings.Vendor}/{settings.Prefix}/";
@@ -50,7 +52,7 @@ namespace VseInstrumenti.Core
             ChromeDriverService service = ChromeDriverService.CreateDefaultService();
             service.HideCommandPromptWindow = true;
             
-            bool isFirst = true;
+            
             if (driver == null)
             { 
                 driver = new ChromeDriver(service, options);                     
@@ -58,12 +60,23 @@ namespace VseInstrumenti.Core
 
             if (isFirst)
              {
-                 var currentUrl = url.Replace("{currentId}", "");
-                 currentUrl = currentUrl.Replace("{vendor}", "someshit");
-                 driver.Navigate().GoToUrl(currentUrl);
-                 driver.Manage().Cookies.AddCookie(new OpenQA.Selenium.Cookie("goods_per_page", "80"));
-                 driver.Manage().Cookies.AddCookie(new OpenQA.Selenium.Cookie("notice-user-email", "unknown"));
-                 driver.Manage().Cookies.AddCookie(new OpenQA.Selenium.Cookie("wucf", "14"));
+                try
+                {
+                    var currentUrl = url.Replace("{currentId}", "");
+                    currentUrl = currentUrl.Replace("{vendor}", "someshit");
+                    driver.Navigate().GoToUrl(currentUrl);
+                    driver.Manage().Cookies.AddCookie(new OpenQA.Selenium.Cookie("goods_per_page", "80"));
+                    driver.Manage().Cookies.AddCookie(new OpenQA.Selenium.Cookie("notice-user-email", "unknown"));
+                    driver.Manage().Cookies.AddCookie(new OpenQA.Selenium.Cookie("wucf", "14"));
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+                finally
+                {
+                    isFirst = !isFirst;
+                }
             }
                 //driver.Manage().Window.Position = new System.Drawing.Point(-2000, 0);
                 //driver.Manage().Window.Position = new System.Drawing.Point(300, 500);             
@@ -110,10 +123,18 @@ namespace VseInstrumenti.Core
             }
             catch (Exception ex)
             {
-               // Console.WriteLine(ex.Message);
+                Console.WriteLine(ex.Message);
             }
-            
-            driver.Navigate().GoToUrl(currentUrl);
+
+            try
+            {
+                driver.Navigate().GoToUrl(currentUrl);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Ошибка на url: {0}. Текст ошибки: {1}", currentUrl, ex.InnerException.Message);
+                return null;
+            }
            // Console.WriteLine(currentUrl);
 
             return driver.PageSource.ToString();         

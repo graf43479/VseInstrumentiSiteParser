@@ -44,7 +44,12 @@ namespace Domain.Entity
         /// <summary>
         /// Есть ли в продаже сейчас
         /// </summary>
-        public bool State  { get; set; }      
+        public bool State { get; set; }
+
+        /// <summary>
+        /// Ссылка на карточку товара
+        /// </summary>
+        public string Url { get; set; }
 
 
         /// <summary>

@@ -64,6 +64,7 @@
     <Compile Include="Model\PriceDynamicModel.cs" />
     <Compile Include="Model\ProductSearchResultModel.cs" />
     <Compile Include="Model\TwoDaysPriceDiffereceModel.cs" />
+    <Compile Include="Model\VendorInfo.cs" />
     <Compile Include="Model\VendorProductCountModel.cs" />
   </ItemGroup>
   <ItemGroup>

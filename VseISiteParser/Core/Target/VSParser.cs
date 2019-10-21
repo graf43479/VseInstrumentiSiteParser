@@ -45,7 +45,8 @@ namespace VseInstrumenti.Core.Target
                 CurrentPrice = (isNAvail == null) ? Int32.Parse(curPrice) : 0,
                 UpdateDate = DateTime.Now,
                 CreationDate = DateTime.Now,
-                Rating = rating
+                Rating = rating,
+                Url = element.QuerySelector("a.link").GetAttribute("href")
             };
             return product;
         }

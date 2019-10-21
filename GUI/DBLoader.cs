@@ -111,30 +111,50 @@ namespace GUI
                 {
                     dates.Add(DateTime.Now.AddMonths(-i));
                 }
-
-
                 return dates.OrderBy(x=>x).ToList();
             }
         }
+                       
 
-        //internal List<PriceDynamicModel> GetPriceDynamicModels(string text, IEnumerable<TwoDaysPriceDiffereceModel> model)
-        //{
-        //  //  return model;
+        internal async Task<string> GetUrlAsync(int code)
+        {
+            return "https://www.vseinstrumenti.ru" + (await productRepository.Products.FirstOrDefaultAsync(x => x.Code == code)).Url;
+        }
 
-        //    //List<Product> products;
-        //    //List<Price> prices;
-        //    //int codeRes = 0;
-        //    //if (int.TryParse(text, out codeRes))
-        //    //{
-        //    //    products = productRepository.Products.Where(x => x.Code == codeRes).AsNoTracking().ToList();
-        //    //}
-        //    //else
-        //    //{
-        //    //    products = productRepository.Products.Where(x => x.Name.ToLower().Contains(text.ToLower()) || x.Vendor.Name.ToLower().Contains(text.ToLower())).AsNoTracking().ToList();
-        //    //}
+        internal async Task<IEnumerable<VendorInfo>> GetVendorsAsync()
+        {
+            
+            IEnumerable<VendorInfo> model = await (from v in vendorRepository.Vendors
+                        join p in productRepository.Products on v.VendorID equals p.VendorID
+                        group p by new { p.Vendor.Name } into g
+                        select new VendorInfo()
+                        {
+                            VendorName = g.Key.Name,
+                            ProductCount = g.Count(),
+                            FavoriteProductCount = g.Where(x => x.IsFavorite).Count()
+                        }).ToListAsync();
 
-        //   // return null; // products.PriceDynamicModel();
-        //}
+            //var model = productRepository.Products
+            //        .GroupJoin(
+            //            vendorRepository.Vendors,
+            //            e=>e.VendorID,
+            //            o => o.VendorID,
+            //            (e,os) => new VendorInfo
+            //            {
+            //                VendorName = e.Vendor.Name,
+            //                ProductCount = os.Count(o=>o.pr)
+            //            }
 
+
+                        //    )
+
+            
+            
+            return model;
+        }
+
+        
+
+       
     }
 }
