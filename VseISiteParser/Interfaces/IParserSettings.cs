@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace VseInstrumenti.Core
+﻿
+namespace VseInstrumenti.Interfaces
 {
     /// <summary>
     /// Интерфейс по работе с URL

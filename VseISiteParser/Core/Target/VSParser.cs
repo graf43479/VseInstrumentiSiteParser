@@ -1,23 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using OpenQA.Selenium;
-using OpenQA.Selenium.Remote;
-using OpenQA.Selenium.Support.UI;
 using Domain.Entity;
-using AngleSharp.Html;
 using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
+using VseInstrumenti.Interfaces;
 
 namespace VseInstrumenti.Core.Target
 {
     /// <summary>
     /// Класс для непосредственного парсинга свойств товаров
     /// </summary>
-   public class VSParser : IParser<List<Product>>
+    public class VSParser : IParser<List<Product>>
     {
         /// <summary>
         /// Вытаскивает Product из html-тегов
@@ -66,7 +59,14 @@ namespace VseInstrumenti.Core.Target
 
             foreach (IElement item in items)
             {
-                list.Add(GetProduct(item));
+                try
+                {
+                    list.Add(GetProduct(item));
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Ошибка перехвачена: " + ex.Message);
+                }
             }            
             return list;
         }

@@ -70,9 +70,9 @@
   <ItemGroup>
     <Compile Include="Core\DBLoader.cs" />
     <Compile Include="Core\HtmlLoader.cs" />
-    <Compile Include="Core\IDBLoader.cs" />
-    <Compile Include="Core\IParser.cs" />
-    <Compile Include="Core\IParserSettings.cs" />
+    <Compile Include="Interfaces\IDBLoader.cs" />
+    <Compile Include="Interfaces\IParser.cs" />
+    <Compile Include="Interfaces\IParserSettings.cs" />
     <Compile Include="Core\ParserWorker.cs" />
     <Compile Include="Core\Target\VSParser.cs" />
     <Compile Include="Core\Target\VSSettings.cs" />

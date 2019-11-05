@@ -21,7 +21,7 @@ namespace GUI
         private IProductRepository productRepository; // = new EFProductRepository(db);
 
         public DBLoader(ViDBContext db)
-        {
+        {            
             //using (ViDBContext db = new ViDBContext())
             statisticRepository = new EFStatisticRepository(db);
             vendorRepository = new EFVendorRepository(db);
@@ -30,13 +30,19 @@ namespace GUI
         }
 
 
-       public IEnumerable<VendorProductCountModel> GetVendorProductCount()
+        public IEnumerable<VendorProductCountModel> GetVendorProductCount()
         {
-            IEnumerable<VendorProductCountModel>  pr = from p in productRepository.Products
-                     group p by p.Vendor.Name into g
-                     select new VendorProductCountModel{ VendorName = g.Key, Count = g.Count() };
+            IEnumerable<VendorProductCountModel> pr = from p in productRepository.Products
+                                                      group p by p.Vendor.Name into g
+                                                      select new VendorProductCountModel { VendorName = g.Key, Count = g.Count() };
 
             return pr;
+        }
+
+        public IEnumerable<Vendor> GetVendors()
+        {
+            return vendorRepository.Vendors;
+            
         }
 
         public async Task<IEnumerable<TwoDaysPriceDiffereceModel>> GetDiffernceAsync(DateTime dateStart, DateTime dateEnd, float percent, bool isChoosen)
@@ -153,8 +159,76 @@ namespace GUI
             return model;
         }
 
-        
 
-       
+        public async Task<IEnumerable<MinimumPriceProductModel>> GetProductCurrentMinValueAsync(bool dailyMin, string vendorName)
+        {
+            //Актуальная дата в статистике (сегодня)
+            DateTime actualDate = statisticRepository.Statistics.Max(x => x.CreationDate);
+            //Все цены за актуальную дату
+            var curPrices = from pr in priceRepository.Prices
+                      join s in statisticRepository.Statistics
+                      on pr.StatisticID equals s.StatisticID
+                      where s.CreationDate == actualDate && pr.PriceValue != 0
+                      select new
+                      {
+                          ProductId = pr.ProductID,
+                          Price = pr.PriceValue
+                      };
+
+            //Исторически минимальные значения цены в разбивке по товару
+            var minPrices = from pr in priceRepository.Prices
+                            where pr.PriceValue != 0
+                            group pr by pr.ProductID into g
+                            select new
+                            {
+                                ProductId = g.Key,
+                                Price = g.Min(x=>x.PriceValue)
+                            };
+         
+            var result = curPrices.Intersect(minPrices);            
+            //если мы хотим узнать товары, не просто с минимальной ценой, а с минимальной за всю историю наблюдений, но изменившиеся сегодня
+            if (dailyMin)
+            {
+                DateTime yesterdayDate = statisticRepository.Statistics.Where(x => x.CreationDate != actualDate).Max(x => x.CreationDate);
+                var yesterdayPrices = from pr in priceRepository.Prices
+                                      join s in statisticRepository.Statistics
+                                      on pr.StatisticID equals s.StatisticID
+                                      where s.CreationDate == yesterdayDate && pr.PriceValue != 0
+                                      select new
+                                      {
+                                          ProductId = pr.ProductID,
+                                          Price = pr.PriceValue
+                                      };
+                //исключаем из сегодняшних вчерашние
+                var yresult = yesterdayPrices.Intersect(minPrices);
+
+                result = result.Except(yresult);
+            }
+            
+            var products = (from p in productRepository.Products
+                            join r in result on p.ProductID equals r.ProductId
+                            select p);
+
+            if (vendorName != null)
+            {
+                products = from p in products
+                           join v in vendorRepository.Vendors
+                           on p.VendorID equals v.VendorID
+                           where v.Name == vendorName
+                           select p;
+            }
+            return await (products.Select(x=>new MinimumPriceProductModel() 
+            {
+                Code = x.Code,
+                CurrentPrice = x.CurrentPrice,
+                Name = x.Name,
+                ProductID=x.ProductID,
+                Rating = x.Rating,
+                Responses = x.Responses,
+                State=x.State,
+                VendorName = x.Vendor.Name
+            })).ToListAsync();
+        }
     }
+
 }

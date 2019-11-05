@@ -41,6 +41,11 @@ namespace GUI
             dateEnd.SelectedDate = DateTime.Now;
 
             dbLoader = new DBLoader(new ViDBContext());
+            List<string> v_list = new List<string>();
+            v_list.Add("Все");
+            v_list.AddRange(dbLoader.GetVendors().Select(x => x.Name));
+            VendorsComboBox.ItemsSource = v_list;
+            VendorsComboBox.SelectedIndex = 0;
         }
 
         private void CheckBox_Checked(object sender, RoutedEventArgs e)
@@ -252,6 +257,21 @@ namespace GUI
         {
             var some = await dbLoader.GetVendorsAsync();
             DataGridVendors.ItemsSource = some;
+        }
+
+        private async void SearchMin_Click(object sender, RoutedEventArgs e)
+        {
+            
+            string vendor = VendorsComboBox.SelectedItem.ToString() == "Все" ? null : VendorsComboBox.SelectedItem.ToString();
+            var result = await dbLoader.GetProductCurrentMinValueAsync((bool)MinCheckBox.IsChecked, vendor);
+            DataGridMinimum.ItemsSource = result;
+        }
+
+        private async void DataGridMinimum_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            DataGrid dgv = (DataGrid)sender;
+            MinimumPriceProductModel model = (MinimumPriceProductModel)dgv.SelectedItem;
+            await GetUrlAsync(model.Code);
         }
     }
 }

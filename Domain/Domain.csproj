@@ -61,6 +61,7 @@
     <Compile Include="Entity\Statistic.cs" />
     <Compile Include="Entity\Vendor.cs" />
     <Compile Include="ExtensionMethods\ExtensionMethods.cs" />
+    <Compile Include="Model\MinimumPriceProductModel.cs" />
     <Compile Include="Model\PriceDynamicModel.cs" />
     <Compile Include="Model\ProductSearchResultModel.cs" />
     <Compile Include="Model\TwoDaysPriceDiffereceModel.cs" />

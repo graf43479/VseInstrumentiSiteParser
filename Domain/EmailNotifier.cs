@@ -1,35 +1,23 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Net.Mail;
 using System.Net;
+using System.Threading.Tasks;
+
+
+using System.Net.Mime;
+using System.Threading;
 using System.ComponentModel;
 
 namespace VseISiteParser
 {
     public static class EmailNotifier
     {
-        //private EmailSettings emailSettings;
+        static bool mailSent = false;
 
-        //public EmailNotifier(EmailSettings settings)
-        //{
-        //    emailSettings = settings;
-        //}
-
-   
-        private static void Mailer(MailMessage mailMessage)
+        private static async void SendMailAsync(MailMessage mailMessage)
         {
             mailMessage.IsBodyHtml = true;
-
-            //mailMessage.Body = "<p>Добрый день! Клиент сайта <b>" + Constants.SITE_NAME + "</b>, представившийся " +
-            //                        "как <b>" + message.Name + "</b>, направил вам сообщение с обратным адресом: " +
-            //                        message.Email + "</p>" +
-            //                        "<p>Текст сообщения ниже</p>" +
-            //                        "<p style='font-weight: bold;color: indigo;background-color: lavender'>" +
-            //                        message.Text + "</p>" +
-            //                        "<p>Отвечайте на письмо на адрес: " + message.Email + "</p>";
 
             if (EmailSettings.WriteAsFile)
             {
@@ -44,11 +32,50 @@ namespace VseISiteParser
                 smtpClient.Port = EmailSettings.ServerPort;
                 smtpClient.UseDefaultCredentials = false;
                 smtpClient.Credentials = new NetworkCredential(EmailSettings.UserName, EmailSettings.Password);
+
+                smtpClient.SendCompleted += new SendCompletedEventHandler(SendCompletedCallback);
+                string state = "";
                 try
                 {
-                   
-                   smtpClient.Send(mailMessage);                    
-                    //smtpClient.Send(mailMessage);
+
+                    smtpClient.SendAsync(mailMessage, state);
+                    //Task
+                    //if (!mailSent)
+                    //{
+                    //    smtpClient.SendAsyncCancel();
+                    //}
+                    await Task.Run(() => smtpClient.SendAsync(mailMessage, state));
+                    //smtpClient.Send(mailMessage);                    
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+                mailMessage.Dispose();
+            }
+        }
+
+        private static void SendMail(MailMessage mailMessage)
+        {
+            mailMessage.IsBodyHtml = true;
+
+            if (EmailSettings.WriteAsFile)
+            {
+                mailMessage.BodyEncoding = Encoding.UTF8;
+            }
+
+            using (var smtpClient = new SmtpClient())
+            {
+                // emailSettings.MailToAddress = user.Email;
+                smtpClient.EnableSsl = EmailSettings.UseSsl;
+                smtpClient.Host = EmailSettings.ServerName;
+                smtpClient.Port = EmailSettings.ServerPort;
+                smtpClient.UseDefaultCredentials = false;
+                smtpClient.Credentials = new NetworkCredential(EmailSettings.UserName, EmailSettings.Password);
+
+                try
+                {
+                    smtpClient.Send(mailMessage);                    
                 }
                 catch (Exception ex)
                 {
@@ -58,7 +85,6 @@ namespace VseISiteParser
             }
         }
         
-
         public static void CreateMessage(string messageText, string subject)
         {
             MailMessage mailMessage = new MailMessage(
@@ -67,11 +93,33 @@ namespace VseISiteParser
                         subject,
                         messageText
                         );
-
-            Mailer(mailMessage);            
-
+            // SendMail(mailMessage));
+            //await Task.Run(() => SendMailAsync(mailMessage));
+            //await Task.Run(() => 
+            SendMail(mailMessage);
+            //Task.WaitAll();
+            //Task t =  //Task.Run(()=> SendMailAsync(mailMessage));            
         }
 
+        private static void SendCompletedCallback(object sender, AsyncCompletedEventArgs e)
+        {
+            // Get the unique identifier for this asynchronous operation.
+            String token = (string)e.UserState;
+
+            if (e.Cancelled)
+            {
+                Console.WriteLine("[{0}] Send canceled.", token);
+            }
+            if (e.Error != null)
+            {
+                Console.WriteLine("[{0}] {1}", token, e.Error.ToString());
+            }
+            else
+            {
+                Console.WriteLine("Message sent.");
+            }
+            mailSent = true;
+        }
     }
 
     internal static class EmailSettings
@@ -86,28 +134,5 @@ namespace VseISiteParser
         public static bool WriteAsFile { get; set; } = false;
         public static string FileLocation { get; set; } = @"c:/sportstore/emails";
     }
+
 }
-
-
-/*
- //emailSettings.MailFromAddress = ((sets.FirstOrDefault(x=>x.MailSettingsID=="MAIL_FROM_ADDRESS"))!=null) ? sets.FirstOrDefault(x=>x.MailSettingsID=="MAIL_FROM_ADDRESS").SettingsValue : Constants.MAIL_FROM_ADDRESS;
-           //emailSettings.UseSsl = ((sets.FirstOrDefault(x => x.MailSettingsID == "MAIL_USE_SSL")) != null) ? Boolean.Parse(sets.FirstOrDefault(x => x.MailSettingsID == "MAIL_USE_SSL").SettingsValue) : Constants.USE_SSL;
-           //emailSettings.UserName = ((sets.FirstOrDefault(x=>x.MailSettingsID=="MAIL_SERVER_USER_NAME"))!=null) ? sets.FirstOrDefault(x=>x.MailSettingsID=="MAIL_FROM_ADDRESS").SettingsValue : Constants.USERNAME;
-           //emailSettings.Password = ((sets.FirstOrDefault(x=>x.MailSettingsID=="MAIL_SERVER_PASSWORD"))!=null) ? sets.FirstOrDefault(x=>x.MailSettingsID=="MAIL_FROM_ADDRESS").SettingsValue : Constants.PASSWORD;
-           //emailSettings.ServerName = ((sets.FirstOrDefault(x=>x.MailSettingsID=="MAIL_SERVER_NAME"))!=null) ? sets.FirstOrDefault(x=>x.MailSettingsID=="MAIL_FROM_ADDRESS").SettingsValue : Constants.SERVERNAME;
-           //emailSettings.ServerPort = ((sets.FirstOrDefault(x=>x.MailSettingsID=="MAIL_SERVER_PORT"))!=null) ? Int32.Parse(sets.FirstOrDefault(x=>x.MailSettingsID=="MAIL_FROM_ADDRESS").SettingsValue) : Constants.SERVER_PORT;
-           //emailSettings.WriteAsFile = ((sets.FirstOrDefault(x=>x.MailSettingsID=="MAIL_WRITE_AS_FILE"))!=null) ? Boolean.Parse(sets.FirstOrDefault(x=>x.MailSettingsID=="MAIL_FROM_ADDRESS").SettingsValue) : Constants.WRITE_AS_FILE;
-           //emailSettings.FileLocation = ((sets.FirstOrDefault(x=>x.MailSettingsID=="MAIL_FILE_LOCATION"))!=null) ? sets.FirstOrDefault(x=>x.MailSettingsID=="MAIL_FROM_ADDRESS").SettingsValue : @"c:/sportstore";//Constants.FILE_LOCATION;
-           
-       //настройки сервера электронной почты 
-        public const string MAIL_TO_ADDRESS = "graf43479@ya.ru";
-        public const string MAIL_FROM_ADDRESS = "graf43479@ya.ru";
-        public const bool USE_SSL = true;
-        public const string USERNAME = "graf43479";
-        public const string PASSWORD = "votsnorov1987";
-        public const string SERVERNAME = "smtp.yandex.ru";
-        public const int SERVER_PORT = 587;
-        public const bool WRITE_AS_FILE = false;
-        public const string FILE_LOCATION = @"c:/sportstore/emails";
-   
-     */

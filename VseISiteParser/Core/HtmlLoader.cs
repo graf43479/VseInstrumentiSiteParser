@@ -1,7 +1,6 @@
 ﻿using System;
 using OpenQA.Selenium.Chrome;
-
-
+using VseInstrumenti.Interfaces;
 
 namespace VseInstrumenti.Core
 {
@@ -135,8 +134,6 @@ namespace VseInstrumenti.Core
                 Console.WriteLine("Ошибка на url: {0}. Текст ошибки: {1}", currentUrl, ex.InnerException.Message);
                 return null;
             }
-           // Console.WriteLine(currentUrl);
-
             return driver.PageSource.ToString();         
         }
     }

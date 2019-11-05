@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using OpenQA.Selenium;
-using OpenQA.Selenium.Chrome;
-using VseInstrumenti.Core;
-using VseInstrumenti.Core.Target;
 using Domain.DAL;
 using Domain.DAL.Abstract;
 using Domain.DAL.Concrete;
@@ -13,10 +9,11 @@ using System.Data.Entity;
 using System.Threading.Tasks;
 using Domain.ExtensionMethods;
 using Domain;
+using VseISiteParser.Interfaces;
 
 namespace VseISiteParser.Core
 {
-   public class DBLoader
+   public class DBLoader : IDBLoader
     {        
        private IStatisticRepository statisticRepository; // = new EFStatisticRepository(db);
        private IVendorRepository vendorRepository; // = new EFVendorRepository(db);
@@ -25,26 +22,14 @@ namespace VseISiteParser.Core
 
         public DBLoader(ViDBContext db)
         {
-            //using (ViDBContext db = new ViDBContext())
-                statisticRepository = new EFStatisticRepository(db);
-                vendorRepository = new EFVendorRepository(db);
-                priceRepository = new EFPriceRepository(db);
-                productRepository = new EFProductRepository(db);          
+            statisticRepository = new EFStatisticRepository(db);
+            vendorRepository = new EFVendorRepository(db);
+            priceRepository = new EFPriceRepository(db);
+            productRepository = new EFProductRepository(db);          
         }
 
         string Status = "Success"; //меняется на false в случае проблем
-
-        public void DoSomething()
-        {
-            var vendors = vendorRepository.Vendors;
-
-
-            foreach (Vendor item in vendors)
-            {
-                Console.WriteLine(item.Name);
-            }
-        }
-
+               
         /// <summary>
         /// Получение списка производителей
         /// </summary>
@@ -58,7 +43,7 @@ namespace VseISiteParser.Core
         /// Сохранение списка в БД поштучно
         /// </summary>
         /// <param name="products">список товаров</param>
-        internal void LoadProductList(List<Product> products)
+       public void LoadProductList(List<Product> products)
         {
             try
             {
@@ -72,17 +57,13 @@ namespace VseISiteParser.Core
             {
                 Status = "Falled at ProductList upload";
             }
-            
-            //productRepository.SaveProductRange(products);
-            //Task t = productRepository.SaveProductRangeAsync(products);
-            //t.Wait();
         }
 
         /// <summary>
         /// Получение информации о слепках цен
         /// </summary>
         /// <returns>список слепков</returns>
-        internal IEnumerable<Statistic> GetStatistic()
+       public IEnumerable<Statistic> GetStatistic()
         {
             return statisticRepository.Statistics;
         }
@@ -91,17 +72,14 @@ namespace VseISiteParser.Core
         /// Инициирует создание контрольной точки и слепок цен на товары от сегодняшней даты
         /// </summary>
         /// <returns></returns>
-        internal async Task MakePriceSnapshotAsync()
+        public async Task MakePriceSnapshotAsync()
         {
             Statistic statistic = new Statistic()
             {
                 CreationDate = DateTime.Now.Date
             };
 
-            statisticRepository.SaveStatistic(statistic);
-
-
-           
+            statisticRepository.SaveStatistic(statistic);          
 
             try
             {
@@ -116,8 +94,6 @@ namespace VseISiteParser.Core
                     List<Price> prices = (await total.Skip(startFrom).Take(blockSize).ToListAsync()).ProductListToPriceList(statistic);
                     startFrom += blockSize;
                     await priceRepository.SavePriceRangeAsync(prices);
-
-
                 }
             }
             catch (Exception)

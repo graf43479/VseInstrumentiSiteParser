@@ -7,6 +7,7 @@ using VseISiteParser.Core;
 using Domain.DAL;
 using Domain.Entity;
 using VseISiteParser;
+using VseInstrumenti.Interfaces;
 
 namespace VseInstrumenti.Core
 {
@@ -56,22 +57,19 @@ namespace VseInstrumenti.Core
         public ParserWorker(IParser<T> parser, IParserSettings settings) : this(parser)
         {
             Settings = settings;
-            //this.parserSettings = settings;
         }
 
         public void Strart()
         {
             try
             {
-
                 isActive = true;
-                //WorkerAsync();
                 Task t = WorkerAsync();
                 t.Wait();
             }
             catch (Exception ex)
             {
-                EmailNotifier.CreateMessage("Ошибка при парсинге! " + ex.InnerException.Message, "Error"); 
+                EmailNotifier.CreateMessage($"Ошибка при парсинге! Текст: {ex.InnerException.Message}. Trace:{ex.InnerException.StackTrace}", "Error"); 
                 throw;
             }
         }
@@ -81,7 +79,6 @@ namespace VseInstrumenti.Core
             isActive = false;
         }
 
-        //private void Worker()
         private async Task WorkerAsync()
         {
             Statistic statistic = dbLoader.GetStatistic().FirstOrDefault(x => x.CreationDate.Date == DateTime.Now.Date);
@@ -104,10 +101,8 @@ namespace VseInstrumenti.Core
                         {                            
                             if (!isActive)
                             {
-                                //Console.WriteLine("Not Active");
                                 return;
                             }
-                            //Console.WriteLine(i);
                             string htmlResult = "";
                             try
                             {
@@ -118,86 +113,80 @@ namespace VseInstrumenti.Core
                                 Console.WriteLine($"Ошибка загрузки страницы: {ex.Message}");
                                 goto retry2;
                             }
-                            
-                        var domParser = new HtmlParser();
-                        var document = await domParser.ParseDocumentAsync(htmlResult.ToString());
-                        
-                        T result = Parser.Parse(document);
-                            
-                            //если лист товаров не получен, то значит страница не существует
-                            if (result == null || (result as List<Product>).Count() == 0)
-                            {
-                                if (IsPlanA)
-                                {
-                                    IsPlanA = false;
-                                    //Console.WriteLine("BreakA0");
-                                    goto retry;
-                                }
-                               // Console.WriteLine("BreakA");
-                                break;
-                            }
 
-                            List<Product> newResult = result as List<Product>;
-
-                            string newSortSetting = parserSettings.SortList[j];
                             try
                             {
-                                if (oldResult != null && oldResult.Select(x => x.Code).Intersect(newResult.Select(x => x.Code)).Count() > 0)
+                                var domParser = new HtmlParser();
+                                var document = await domParser.ParseDocumentAsync(htmlResult.ToString());
+
+                                T result = Parser.Parse(document);
+
+                                //если лист товаров не получен, то значит страница не существует
+                                if (result == null || (result as List<Product>).Count() == 0)
                                 {
-                                    if (oldSortSetting == newSortSetting)
+                                    if (IsPlanA)
                                     {
-                                       // Console.WriteLine("BreakB");
-                                    oldSortSetting = "";
-                                        break;
+                                        IsPlanA = false;
+                                        goto retry;
                                     }
-                                    else
+                                    break;
+                                }
+
+                                List<Product> newResult = result as List<Product>;
+
+                                string newSortSetting = parserSettings.SortList[j];
+                                try
+                                {
+                                    if (oldResult != null && oldResult.Select(x => x.Code).Intersect(newResult.Select(x => x.Code)).Count() > 0)
                                     {
-                                        //Console.WriteLine("BreakC");
-                                        oldSortSetting = newSortSetting;
-                                       // continue;
-                                    }                                    
+                                        if (oldSortSetting == newSortSetting)
+                                        {
+                                            oldSortSetting = "";
+                                            break;
+                                        }
+                                        else
+                                        {
+                                            oldSortSetting = newSortSetting;
+                                        }
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    Console.WriteLine("Exception: " + ex.Message);
+                                }
+
+                                oldSortSetting = newSortSetting;
+                                oldResult = newResult;
+
+                                foreach (Product item in newResult)
+                                {
+                                    item.VendorID = vendor.VendorID;
+                                }
+
+                                dbLoader.LoadProductList(newResult);
+
+                                if (first)
+                                {
+                                    first = false;
+                                    if (oldResult != null && oldResult.Count != 20 && oldResult.Count < 79)
+                                    {
+                                        goto retry2;
+                                    }
                                 }
                             }
                             catch (Exception ex)
                             {
-                                //Console.WriteLine("Exception: " + ex.Message);
+                                Console.WriteLine("Исключение перехвачено: " + ex.Message);
                             }
-
-                            oldSortSetting = newSortSetting;
-                            oldResult = newResult;
-
-                            foreach (Product item in newResult)
-                            {
-                                //item.Vendor = vendor;
-                                item.VendorID = vendor.VendorID;
-                            }
-
-                            // Statistic statistic = dbLoader.CreateStatistic();
-                           dbLoader.LoadProductList(newResult); 
-
-                            //statistic.Status = snapshotState;
-                            //dbLoader.SaveStatistic(statistic);
-
-                            if (first)
-                            {
-                                first = false;
-                                if (oldResult != null && oldResult.Count!= 20 && oldResult.Count < 79)
-                                {
-                                    goto retry2;
-                                }
-                            }
+                    
                         }
                     }
                 retry2:;
                 }
 
                await dbLoader.MakePriceSnapshotAsync();
-               // Parallel.Invoke( async () => { await dbLoader.MakePriceSnapshotAsync(); });                
             }
-
-            //Parallel.Invoke(()=> { loader.driver.Quit(); });
             loader.driver.Quit();
-            //Console.WriteLine("WorkerAsync over");
-        }
+         }
     }
 }
