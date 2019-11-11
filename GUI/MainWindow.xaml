@@ -20,9 +20,11 @@
                         <ColumnDefinition Width="65*"/>
                         <ColumnDefinition Width="91*"/>
                         <ColumnDefinition Width="70*"/>
-                        <ColumnDefinition Width="1086*"/>
+                        <ColumnDefinition Width="152*"/>
+                        <ColumnDefinition Width="49*"/>
+                        <ColumnDefinition Width="886*"/>
                     </Grid.ColumnDefinitions>
-                    <DockPanel HorizontalAlignment="Left" Height="54" Margin="5,0,0,0" VerticalAlignment="Top" Width="1330" LastChildFill="False" Grid.ColumnSpan="5" Grid.Column="1">
+                    <DockPanel HorizontalAlignment="Left" Height="54" Margin="5,0,0,0" VerticalAlignment="Top" Width="1330" LastChildFill="False" Grid.ColumnSpan="7" Grid.Column="1">
                         <Label Content="Начало:" Height="23" VerticalAlignment="Center" Width="54" HorizontalAlignment="Left" Margin="0,0,11,0"/>
                         <DatePicker Name="dateStart"   VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,11,0" DisplayDate="2019-07-04"/>
                         <Label Content="Окончание:" Height="27" VerticalAlignment="Center" Width="76" HorizontalAlignment="Center" Margin="0,0,11,0"/>
@@ -33,11 +35,11 @@
                         <TextBlock Height="20" TextWrapping="Wrap" Width="56" Foreground="Black" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,17" Text="{Binding ElementName=sliderPercent, Path=Value,StringFormat={}{0:G3}%}"></TextBlock>
                         <Button x:Name="ButtonDateDiffDiscount" Content="Button" Margin="0,0,0,16" Width="89" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" VerticalAlignment="Bottom" Click="ButtonDateDiffDiscount_Click"/>
                     </DockPanel>
-                    <DockPanel HorizontalAlignment="Left" Height="532" LastChildFill="False" Margin="5,54,0,0" VerticalAlignment="Top" Width="1330" Grid.ColumnSpan="5" Grid.Column="1">
+                    <DockPanel HorizontalAlignment="Left" Height="532" LastChildFill="False" Margin="5,54,0,0" VerticalAlignment="Top" Width="1330" Grid.ColumnSpan="7" Grid.Column="1">
 
                     </DockPanel>
-                    <DataGrid Name="TwoDaysDifferenceDataGrid" AutoGenerateColumns="True" HorizontalAlignment="Left" Height="527" Margin="5,59,0,0" VerticalAlignment="Top" Width="1330" IsReadOnly="True" Grid.ColumnSpan="5" Grid.Column="1"  MouseDoubleClick="TwoDaysDifferenceDataGrid_MouseDoubleClick"/>
-                    <Rectangle Name="LoaderRect1" Fill="#FF3939D8" HorizontalAlignment="Left" Height="527" Margin="5,59,0,0" Stroke="Black" VerticalAlignment="Top" Width="1320" Visibility="Collapsed" Grid.ColumnSpan="5" Grid.Column="1"/>
+                    <DataGrid Name="TwoDaysDifferenceDataGrid" AutoGenerateColumns="True" HorizontalAlignment="Left" Height="527" Margin="5,59,0,0" VerticalAlignment="Top" Width="1330" IsReadOnly="True" Grid.ColumnSpan="7" Grid.Column="1"  MouseDoubleClick="TwoDaysDifferenceDataGrid_MouseDoubleClick"/>
+                    <Rectangle Name="LoaderRect1" Fill="#FF3939D8" HorizontalAlignment="Left" Height="527" Margin="5,59,0,0" Stroke="Black" VerticalAlignment="Top" Width="1320" Visibility="Collapsed" Grid.ColumnSpan="7" Grid.Column="1"/>
                 </Grid>
             </TabItem>
             <TabItem Header="Поиск по товару">
@@ -106,11 +108,17 @@
                 </Grid>
             </TabItem>
             <TabItem Header="Исторический минимум">
-               <Grid Background="#FFE5E5E5">
+                <Grid Background="#FFE5E5E5">
                     <DockPanel HorizontalAlignment="Left" Height="60" LastChildFill="False" Margin="10,10,0,0" VerticalAlignment="Top" Width="1320" RenderTransformOrigin="0.502,0.135">
                         <ComboBox x:Name="VendorsComboBox"  Height="24" Margin="0,17,0,0" VerticalAlignment="Top" Width="151" />
                         <CheckBox x:Name="MinCheckBox"  Height="24" Margin="0,17,0,0" VerticalAlignment="Top" Width="75" Content="За сутки" ></CheckBox>
-                        <Button x:Name="SearchMin"  Content="Искать"  Height="24" Margin="0,17,0,0" VerticalAlignment="Top" Width="151" Click="SearchMin_Click" />
+                        <Slider Name="sliderPriceStart" VerticalAlignment="Center" Width="240" HorizontalAlignment="Center" Margin="0,19,11,19" Maximum="100" SmallChange="1" ValueChanged="sliderPriceStart_ValueChanged"/>
+                        <Label Name="LabelSliderPriceStart" VerticalAlignment="Center" Width="50" HorizontalAlignment="Center" Margin="0,0,11,0"></Label>
+                        <Slider Name="sliderPriceEnd" VerticalAlignment="Center" Width="240" HorizontalAlignment="Center" Margin="0,19,11,19" Maximum="100" SmallChange="1" ValueChanged="sliderPriceEnd_ValueChanged"/>
+                        <Label Name="LabelSliderPriceEnd" VerticalAlignment="Center" Width="70" HorizontalAlignment="Center" Margin="0,0,11,0"></Label>
+                        <TextBox Name="TextBoxMinSearcher" Height="24" Margin="0,17,17,0" VerticalAlignment="Top" Width="250" ></TextBox>
+                        <Button x:Name="SearchMin"  Content="Искать"  Height="24" Margin="0,17,0,0" VerticalAlignment="Top" Width="80" Click="SearchMin_Click" />
+                        <Button x:Name="BtnToExcel"  Content="В эксель"  Height="24" Margin="17,17,0,0" VerticalAlignment="Top" Width="80" Click="BtnToExcel_Click" />
                     </DockPanel>
                     <DockPanel HorizontalAlignment="Left" Height="511" LastChildFill="False" Margin="10,75,0,0" VerticalAlignment="Top" Width="1320">
                         <DataGrid x:Name="DataGridMinimum" HorizontalAlignment="Left" Height="485" VerticalAlignment="Top" Width="1321" IsReadOnly="True" MouseDoubleClick="DataGridMinimum_MouseDoubleClick" />

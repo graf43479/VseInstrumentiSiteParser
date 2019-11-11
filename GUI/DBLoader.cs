@@ -159,8 +159,21 @@ namespace GUI
             return model;
         }
 
+        public int GetExtremumValue(bool isMinimum)
+        {
+            int val = 0;
+            if (isMinimum)
+            {
+                val = priceRepository.Prices.Where(x => x.PriceValue != 0).Min(x => x.PriceValue);
+            }
+            else
+            {
+                val = priceRepository.Prices.Where(x => x.PriceValue != 0).Max(x => x.PriceValue);
+            }
+            return val;
+        }
 
-        public async Task<IEnumerable<MinimumPriceProductModel>> GetProductCurrentMinValueAsync(bool dailyMin, string vendorName)
+        public async Task<IEnumerable<MinimumPriceProductModel>> GetProductCurrentMinValueAsync(bool dailyMin, string vendorName, string searchString, int rangeStart, int rangeEnd)
         {
             //Актуальная дата в статистике (сегодня)
             DateTime actualDate = statisticRepository.Statistics.Max(x => x.CreationDate);
@@ -217,7 +230,13 @@ namespace GUI
                            where v.Name == vendorName
                            select p;
             }
-            return await (products.Select(x=>new MinimumPriceProductModel() 
+
+            if (searchString != null)
+            {
+                products = products.Where(x => x.Name.ToLower().Contains(searchString.ToLower()));                           
+            }
+            
+            return await (products.Where(x=>x.CurrentPrice>=rangeStart && x.CurrentPrice<=rangeEnd).Select(x=>new MinimumPriceProductModel() 
             {
                 Code = x.Code,
                 CurrentPrice = x.CurrentPrice,

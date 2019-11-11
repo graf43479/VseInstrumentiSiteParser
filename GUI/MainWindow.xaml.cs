@@ -23,6 +23,7 @@ using System.Reflection;
 using OxyPlot.Axes;
 using OxyPlot.Series;
 using System.Diagnostics;
+using System.IO;
 
 namespace GUI
 {
@@ -46,6 +47,19 @@ namespace GUI
             v_list.AddRange(dbLoader.GetVendors().Select(x => x.Name));
             VendorsComboBox.ItemsSource = v_list;
             VendorsComboBox.SelectedIndex = 0;
+            int wholeMax = dbLoader.GetExtremumValue(false);
+            int maxLimit = wholeMax > 200000 ? 200000 : wholeMax;
+            int minLimit = dbLoader.GetExtremumValue(true);
+            sliderPriceStart.Minimum = minLimit;
+            sliderPriceStart.Maximum = maxLimit;
+            sliderPriceStart.Value = minLimit;
+            sliderPriceEnd.Minimum = minLimit;
+            sliderPriceEnd.Maximum = maxLimit;
+            sliderPriceEnd.Value = maxLimit;
+            //sliderPriceStart.Maximum = sliderPriceEnd.Minimum;
+
+            //sliderPriceStart
+            //sliderPriceEnd
         }
 
         private void CheckBox_Checked(object sender, RoutedEventArgs e)
@@ -261,9 +275,11 @@ namespace GUI
 
         private async void SearchMin_Click(object sender, RoutedEventArgs e)
         {
-            
+            string searchString = String.IsNullOrWhiteSpace(TextBoxMinSearcher.Text) ? null : TextBoxMinSearcher.Text;
             string vendor = VendorsComboBox.SelectedItem.ToString() == "Все" ? null : VendorsComboBox.SelectedItem.ToString();
-            var result = await dbLoader.GetProductCurrentMinValueAsync((bool)MinCheckBox.IsChecked, vendor);
+            int rangeStart = (int)sliderPriceStart.Value;
+            int rangeEnd = (int)sliderPriceEnd.Value; ;
+            var result = await dbLoader.GetProductCurrentMinValueAsync((bool)MinCheckBox.IsChecked, vendor, searchString, rangeStart, rangeEnd);
             DataGridMinimum.ItemsSource = result;
         }
 
@@ -273,5 +289,45 @@ namespace GUI
             MinimumPriceProductModel model = (MinimumPriceProductModel)dgv.SelectedItem;
             await GetUrlAsync(model.Code);
         }
+
+
+        //TODO: сделать условие для контролов, чтобы не было противоречий 
+        private void sliderPriceStart_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            LabelSliderPriceStart.Content = (int)sliderPriceStart.Value;            
+        }
+
+        private void sliderPriceEnd_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            //if()
+            LabelSliderPriceEnd.Content = (int)sliderPriceEnd.Value;            
+        }
+
+        private void BtnToExcel_Click(object sender, RoutedEventArgs e)
+        {
+            DataGridMinimum.SelectAllCells();
+            DataGridMinimum.ClipboardCopyMode = DataGridClipboardCopyMode.IncludeHeader;
+            ApplicationCommands.Copy.Execute(null, DataGridMinimum);
+            string resultat = (string)Clipboard.GetData(DataFormats.CommaSeparatedValue);
+            string result = (string)Clipboard.GetData(DataFormats.Text);
+            DataGridMinimum.UnselectAllCells();
+            string path = Directory.GetCurrentDirectory();
+            //using (StreamWriter sw = new StreamWriter(System.IO.Path.Combine(path, "test.xls"), false, Encoding.UTF8))
+            //using (StreamWriter sw = new StreamWriter(System.IO.Path.Combine(path, "test.xls")))
+            using (StreamWriter sw = new StreamWriter(new FileStream(System.IO.Path.Combine(path, "test.xls"), FileMode.Create, FileAccess.ReadWrite), Encoding.GetEncoding(1251)))
+            {
+                sw.WriteLine(result.Replace(',', ' '));
+                sw.Close();
+                MessageBox.Show(@"Файл выгружен здесь: " + path);
+            }
+        }
+
+     
+
+
+
+
+
+        //MessageBox.Show("Action");
     }
 }
