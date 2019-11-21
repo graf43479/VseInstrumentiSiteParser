@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 using OpenQA.Selenium.Chrome;
 using VseInstrumenti.Interfaces;
 
@@ -8,12 +10,14 @@ namespace VseInstrumenti.Core
     /// Класс для управленияем конфига браузера и навигации
     /// </summary>
     class HtmlLoader
-    {
+    {        
+        CancellationToken token; //если страница долго грузится
         readonly string  url;
         public ChromeDriver driver;
 
         bool isFirst = true;
 
+        public string CurrentUrl => url;
         public HtmlLoader(IParserSettings settings)
         {
             url = $"{settings.BaseURL}/{settings.Vendor}/{settings.Prefix}/";
@@ -80,8 +84,15 @@ namespace VseInstrumenti.Core
                 //driver.Manage().Window.Position = new System.Drawing.Point(-2000, 0);
                 //driver.Manage().Window.Position = new System.Drawing.Point(300, 500);             
         }
+
+        private async Task<bool> GoToUrl(string currentUrl)
+        {
+            await Task.Run(()=> driver.Navigate().GoToUrl(currentUrl));
+            return token.IsCancellationRequested ? false : true;
+            
+        }
                
-        public string GetSource(string vendor, int id, string sortOption, bool isPlanA)
+        public async Task<string> GetSource(string vendor, int id, string sortOption, bool isPlanA)
         {   
             var currentUrl = "";
             if (id == 1) //на первой странице нельзя указывать номер в url
@@ -127,7 +138,18 @@ namespace VseInstrumenti.Core
 
             try
             {
-                driver.Navigate().GoToUrl(currentUrl);
+                //driver.Navigate().GoToUrl(currentUrl);
+                CancellationTokenSource tokenSource = new CancellationTokenSource(15000);
+                token = tokenSource.Token;
+                bool isSucceed = await GoToUrl(currentUrl);
+                if (!isSucceed)
+                {
+                    Console.WriteLine($"Ошибка на url: {currentUrl}. Превышено ожидание.");
+                    return null;
+
+                }
+                //var some = await Dispatcher.InvokeAsync<Task<string>>(GoToUrl,  DispatcherPriority.Normal, token);
+                //bool isNoDelay = GoToUrl(currentUrl);
             }
             catch (Exception ex)
             {

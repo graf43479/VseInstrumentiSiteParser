@@ -4,6 +4,7 @@ using Domain.Entity;
 using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
 using VseInstrumenti.Interfaces;
+using System.Threading;
 
 namespace VseInstrumenti.Core.Target
 {

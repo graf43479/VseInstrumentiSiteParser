@@ -48,7 +48,7 @@ namespace GUI
             VendorsComboBox.ItemsSource = v_list;
             VendorsComboBox.SelectedIndex = 0;
             int wholeMax = dbLoader.GetExtremumValue(false);
-            int maxLimit = wholeMax > 200000 ? 200000 : wholeMax;
+            int maxLimit = wholeMax > 100000 ? 100000 : wholeMax;
             int minLimit = dbLoader.GetExtremumValue(true);
             sliderPriceStart.Minimum = minLimit;
             sliderPriceStart.Maximum = maxLimit;

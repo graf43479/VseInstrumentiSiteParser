@@ -8,6 +8,7 @@ using Domain.DAL;
 using Domain.Entity;
 using VseISiteParser;
 using VseInstrumenti.Interfaces;
+using System.Threading;
 
 namespace VseInstrumenti.Core
 {
@@ -17,6 +18,9 @@ namespace VseInstrumenti.Core
     /// <typeparam name="T"></typeparam>
     public class ParserWorker<T> where T : class
     {
+        //отмена задачи, если долго грузится страница
+        CancellationToken token;
+
         private IParser<T> parser;
         IParserSettings parserSettings;
         
@@ -106,18 +110,28 @@ namespace VseInstrumenti.Core
                             string htmlResult = "";
                             try
                             {
-                                htmlResult = loader.GetSource(vendor.SubUrl, i, parserSettings.SortList[j], IsPlanA);
+                                htmlResult = await loader.GetSource(vendor.SubUrl, i, parserSettings.SortList[j], IsPlanA);
+                                if (String.IsNullOrEmpty(htmlResult))
+                                {
+                                    goto retry2;
+                                }
                             }
                             catch (Exception ex)
                             {
                                 Console.WriteLine($"Ошибка загрузки страницы: {ex.Message}");
-                                goto retry2;
+                                //goto retry2;
                             }
 
                             try
                             {
+                                CancellationTokenSource tokenSource = new CancellationTokenSource(15000);
+                                token = tokenSource.Token;
                                 var domParser = new HtmlParser();
-                                var document = await domParser.ParseDocumentAsync(htmlResult.ToString());
+                                var document = await domParser.ParseDocumentAsync(htmlResult.ToString(), token);
+                                if (token.IsCancellationRequested)
+                                {
+                                    throw new Exception($"Превышено время ожидания загрузки страницы: {loader.CurrentUrl}") ;
+                                }
 
                                 T result = Parser.Parse(document);
 
