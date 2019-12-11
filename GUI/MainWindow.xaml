@@ -126,7 +126,13 @@
                         <Button x:Name="BtnToExcel"  Content="В эксель"  Height="24" Margin="17,17,0,0" VerticalAlignment="Top" Width="80" Click="BtnToExcel_Click" />
                     </DockPanel>
                     <DockPanel HorizontalAlignment="Left" Height="511" LastChildFill="False" Margin="10,75,0,0" VerticalAlignment="Top" Width="1320">
-                        <DataGrid x:Name="DataGridMinimum" HorizontalAlignment="Left" Height="485" VerticalAlignment="Top" Width="1321" IsReadOnly="True" MouseDoubleClick="DataGridMinimum_MouseDoubleClick" />
+                        <DataGrid x:Name="DataGridMinimum" HorizontalAlignment="Left" Height="485" VerticalAlignment="Top" Width="1321" IsReadOnly="True" MouseDoubleClick="DataGridMinimum_MouseDoubleClick" MouseMove="DataGridMinimum_MouseMove">
+                            <DataGrid.ToolTip>
+                                <ToolTip Name="dgTooltip" AutomationProperties.IsColumnHeader="True">
+                                    
+                                </ToolTip>
+                            </DataGrid.ToolTip>
+                        </DataGrid>
                     </DockPanel>
                 </Grid>
             </TabItem>

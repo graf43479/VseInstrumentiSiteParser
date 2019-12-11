@@ -288,6 +288,12 @@ namespace GUI
                 return false;
             }
         }
+
+        internal async Task<List<int>> GetPriceHistoryAsync(int productID)
+        {
+            List<int> prices = await priceRepository.Prices.Where(x => x.ProductID == productID).OrderBy(x=>x.PriceValue).Select(x => x.PriceValue).Distinct().ToListAsync();
+            return prices;
+        }
     }
 
 }

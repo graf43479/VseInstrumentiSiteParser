@@ -24,6 +24,7 @@ using OxyPlot.Axes;
 using OxyPlot.Series;
 using System.Diagnostics;
 using System.IO;
+using System.Media;
 using Domain.Entity;
 
 namespace GUI
@@ -356,12 +357,80 @@ namespace GUI
             
         }
 
+        private async void DataGridMinimum_MouseMove(object sender, MouseEventArgs e)
+        {
+            try
+            {
+                System.Windows.Media.HitTestResult hitTestResult = VisualTreeHelper.HitTest(DataGridMinimum, e.GetPosition(DataGridMinimum));
+                DataGridRow dataGridRow = hitTestResult.VisualHit.GetParentOfType<DataGridRow>();
+                if (dataGridRow != null)
+                {
+                    int index = dataGridRow.GetIndex();
+                    // string combination = ((Items)DataGridMinimum.Items[index]).Name;
+                    //string combination = ((Items)DataGridMinimum.Items[index]).Name;
+                    var combination = DataGridMinimum.CurrentItem; // Items[index]).Name;
+
+                    if (combination!=null)
+                    {
+                        MinimumPriceProductModel model = (MinimumPriceProductModel)combination;
+                        //MinimumPriceProductModel
+                        // int len = combination.Length;
+                        string val = "История цен: \n";
+
+                        IList<int> history = await dbLoader.GetPriceHistoryAsync(model.ProductID);
+
+                        foreach (var item in history)
+                        {
+                            val += $"{item} \n";
+                        }
+
+                        dgTooltip.IsOpen = true;
+                        dgTooltip.Content = val;
+                    }
+                    
+                    //for (int i = 1; i <= len; i++)
+                    //{
+                    //    char ch = combination[i - 1];
+                    //    string tmp = $"Канал №{i}. Интенсивность помех: {ch}\n";
+                    //    message += tmp;
+                    //}
+                   // dgTooltip.Content = message.Substring(0, message.Length - 1);
+                }
+            }
+            catch (Exception)
+            {
+            }
+        }
+
+       
+
         //TextBoxVendorSubUrl
 
-
+      
 
 
 
         //MessageBox.Show("Action");
+    }
+
+
+    public static class DataExtensions
+    {
+        public static T GetParentOfType<T>(this DependencyObject element) where T : DependencyObject
+        {
+            Type type = typeof(T);
+            if (element == null) return null;
+            DependencyObject parent = VisualTreeHelper.GetParent(element);
+            if (parent == null && ((FrameworkElement)element).Parent is DependencyObject) parent = ((FrameworkElement)element).Parent;
+            if (parent == null) return null;
+            else if (parent.GetType() == type || parent.GetType().IsSubclassOf(type)) return parent as T;
+            return GetParentOfType<T>(parent);
+        }
+    }
+
+    public class Items
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
     }
 }
