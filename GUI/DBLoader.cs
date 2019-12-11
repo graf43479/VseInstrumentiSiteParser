@@ -129,33 +129,31 @@ namespace GUI
 
         internal async Task<IEnumerable<VendorInfo>> GetVendorsAsync()
         {
-            
-            IEnumerable<VendorInfo> model = await (from v in vendorRepository.Vendors
-                        join p in productRepository.Products on v.VendorID equals p.VendorID
-                        group p by new { p.Vendor.Name } into g
-                        select new VendorInfo()
-                        {
-                            VendorName = g.Key.Name,
-                            ProductCount = g.Count(),
-                            FavoriteProductCount = g.Where(x => x.IsFavorite).Count()
-                        }).ToListAsync();
 
-            //var model = productRepository.Products
-            //        .GroupJoin(
-            //            vendorRepository.Vendors,
-            //            e=>e.VendorID,
-            //            o => o.VendorID,
-            //            (e,os) => new VendorInfo
+            //IEnumerable<VendorInfo> model = await (from v in vendorRepository.Vendors
+            //            join p in productRepository.Products on v.VendorID equals p.VendorID
+            //            group p by new { p.Vendor.Name } into g
+            //            select new VendorInfo()
             //            {
-            //                VendorName = e.Vendor.Name,
-            //                ProductCount = os.Count(o=>o.pr)
-            //            }
+            //                VendorName = g.Key.Name,
+            //                ProductCount = g.Count(),
+            //                FavoriteProductCount = g.Where(x => x.IsFavorite).Count()
+            //            }).ToListAsync();
 
+            //TODO: отображать вендора, даже если нет товаров
+          
+            IEnumerable<VendorInfo> model = await (from v in vendorRepository.Vendors
+                                                   join p in productRepository.Products.Include(x => x.Vendor) on v equals p.Vendor
+                                                   into GroupJoin
+                                                   from r in GroupJoin.DefaultIfEmpty()
 
-                        //    )
-
-            
-            
+                                                   group r by new { r.Vendor.Name } into g
+                                                   select new VendorInfo()
+                                                   {
+                                                       VendorName = (g.Key.Name == null ? "XZ" : g.Key.Name),
+                                                       ProductCount = g.Count(),
+                                                       FavoriteProductCount = g.Where(x => x.IsFavorite).Count()
+                                                   }).ToListAsync();
             return model;
         }
 
@@ -247,6 +245,48 @@ namespace GUI
                 State=x.State,
                 VendorName = x.Vendor.Name
             })).ToListAsync();
+        }
+
+        internal async Task<bool> CreateOrUpdateVendorAsync(string name, string subUrl)
+        {
+            if (!vendorRepository.Vendors.Where(x => x.Name == name || x.SubUrl == subUrl).Any())
+            {
+                try
+                {
+                    Vendor vendor = new Vendor() { Name = name, SubUrl = subUrl, CreationDate = DateTime.Now, UpdateDate = DateTime.Now };
+                    await vendorRepository.SaveVendorAsync(vendor);
+                    return true;
+                }
+                catch (Exception)
+                {
+                    return false;
+                }                
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        internal async Task<bool> DeleteVendorAsync(string vendorName)
+        {
+            Vendor vendor = await vendorRepository.Vendors.FirstOrDefaultAsync(x => x.Name == vendorName);
+            if (vendor!=null)
+            {
+                try
+                {
+                    await vendorRepository.DeleteVendorAsync(vendor);
+                    return true;
+                }
+                catch (Exception)
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 

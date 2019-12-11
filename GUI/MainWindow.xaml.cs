@@ -24,6 +24,7 @@ using OxyPlot.Axes;
 using OxyPlot.Series;
 using System.Diagnostics;
 using System.IO;
+using Domain.Entity;
 
 namespace GUI
 {
@@ -322,7 +323,40 @@ namespace GUI
             }
         }
 
-     
+        private async void AddVendor_Click(object sender, RoutedEventArgs e)
+        {
+
+            //Vendor vendor = new Vendor() { Name = TextBoxVendor.Text, SubUrl = TextBoxVendorSubUrl.Text, CreationDate = DateTime.Now, UpdateDate = DateTime.Now };
+            if (await dbLoader.CreateOrUpdateVendorAsync(TextBoxVendor.Text, TextBoxVendorSubUrl.Text))
+            {
+                MessageBox.Show("Вендор добавлен");
+            }
+            else
+            {
+                MessageBox.Show("Ошибка при создании вендора");
+            }
+        }
+
+        private async void DeleteVendor_Click(object sender, RoutedEventArgs e)
+        {            
+            VendorInfo model = (VendorInfo)DataGridVendors.SelectedItem;
+            if (model != null)
+            {
+                
+                if (await dbLoader.DeleteVendorAsync(model.VendorName))
+                {
+                    MessageBox.Show($"Вендор {model.VendorName} удален") ;
+                }
+                else
+                {
+                    MessageBox.Show("Ошибка при удалении вендора");
+                }
+            }
+            
+            
+        }
+
+        //TextBoxVendorSubUrl
 
 
 

@@ -99,8 +99,13 @@
             <TabItem Header="Производитель" Loaded="TabItem_Loaded">
                 <Grid Background="#FFE5E5E5">
                     <DockPanel HorizontalAlignment="Left" Height="60" LastChildFill="False" Margin="10,10,0,0" VerticalAlignment="Top" Width="1320" RenderTransformOrigin="0.502,0.135">
-                        <TextBox Name="TextBoxVendor" Margin="0,17,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="536" Height="24"/>
-                        <Button x:Name="Добавить"  Content="Добавить" ToolTip="Добавление вендора в индексацию" Height="24" Margin="0,17,0,0" VerticalAlignment="Top" Width="151" />
+                        <Label Content="Производитель:" Height="23" VerticalAlignment="Center" Width="100" HorizontalAlignment="Left" Margin="0,0,11,0"/>
+                        <TextBox Name="TextBoxVendor" Margin="0,17,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="200" Height="24"/>
+                        <Label Content="суб-URL:" Height="24" VerticalAlignment="Center" Width="59" HorizontalAlignment="Right" Margin="0,18,11,18"/>
+                        <TextBox Name="TextBoxVendorSubUrl" Margin="0,17,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="200" Height="24"/>
+                        <Button x:Name="AddVendor"  Content="Добавить" ToolTip="Добавление вендора в индексацию" Height="24" Margin="10,17,0,0" VerticalAlignment="Top" Width="151" Click="AddVendor_Click" />
+                        <Button x:Name="UpdateVandor"  Content="Изменить" ToolTip="Изменение вендора" Height="24" Margin="10,17,0,0" VerticalAlignment="Top" Width="151" />
+                        <Button x:Name="DeleteVendor"  Content="Удалить" ToolTip="Удаление вендора" Height="24" Margin="10,17,0,0" VerticalAlignment="Top" Width="151" Click="DeleteVendor_Click"  />
                     </DockPanel>
                     <DockPanel HorizontalAlignment="Left" Height="511" LastChildFill="False" Margin="10,75,0,0" VerticalAlignment="Top" Width="1320">
                         <DataGrid x:Name="DataGridVendors" HorizontalAlignment="Left" Height="485" VerticalAlignment="Top" Width="1321" IsReadOnly="True" MouseDoubleClick="DataGridVendorForDelete_MouseDoubleClick"/>

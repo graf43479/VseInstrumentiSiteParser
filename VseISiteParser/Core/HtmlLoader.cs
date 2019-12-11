@@ -68,6 +68,9 @@ namespace VseInstrumenti.Core
                     var currentUrl = url.Replace("{currentId}", "");
                     currentUrl = currentUrl.Replace("{vendor}", "someshit");
                     driver.Navigate().GoToUrl(currentUrl);
+                    //driver.Manage().Timeouts().ImplicitlyWait(15, TimeUnit.MINUTES);
+                    driver.Manage().Timeouts().ImplicitWait = new TimeSpan(0, 0, 20);
+                    driver.Manage().Timeouts().PageLoad = new TimeSpan(0, 0, 20);
                     driver.Manage().Cookies.AddCookie(new OpenQA.Selenium.Cookie("goods_per_page", "80"));
                     driver.Manage().Cookies.AddCookie(new OpenQA.Selenium.Cookie("notice-user-email", "unknown"));
                     driver.Manage().Cookies.AddCookie(new OpenQA.Selenium.Cookie("wucf", "14"));
@@ -85,9 +88,33 @@ namespace VseInstrumenti.Core
                 //driver.Manage().Window.Position = new System.Drawing.Point(300, 500);             
         }
 
-        private async Task<bool> GoToUrl(string currentUrl)
+        private async Task<bool> GoToUrl(string currentUrl, CancellationToken cancellationToken)
         {
-            await Task.Run(()=> driver.Navigate().GoToUrl(currentUrl));
+
+            //var t = Task.Run((Action)(() => driver.Navigate().GoToUrl(currentUrl)), cancellationToken);
+            //try
+            //{
+            //    await t;
+            //}
+            try
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                await Task.Run(() => driver.Navigate().GoToUrl(currentUrl), cancellationToken);
+                cancellationToken.ThrowIfCancellationRequested();
+            }            
+            catch (TaskCanceledException ex)
+            {
+                Console.WriteLine($"caught TaskCanceledException");
+                return false;
+            }
+            catch (OperationCanceledException ex)
+            {
+                Console.WriteLine($"caught OperationCanceledException");
+                return false;
+            }
+
+
+
             return token.IsCancellationRequested ? false : true;
             
         }
@@ -139,9 +166,12 @@ namespace VseInstrumenti.Core
             try
             {
                 //driver.Navigate().GoToUrl(currentUrl);
-                CancellationTokenSource tokenSource = new CancellationTokenSource(15000);
-                token = tokenSource.Token;
-                bool isSucceed = await GoToUrl(currentUrl);
+                CancellationTokenSource tokenSource = new CancellationTokenSource(10000);
+                //var chilCts = CancellationTokenSource.CreateLinkedTokenSource(tokenSource.Token);
+                //chilCts.CancelAfter(10000);
+                //tokenSource.CancelAfter(10000);
+                
+                bool isSucceed = await GoToUrl(currentUrl, tokenSource.Token);
                 if (!isSucceed)
                 {
                     Console.WriteLine($"Ошибка на url: {currentUrl}. Превышено ожидание.");
