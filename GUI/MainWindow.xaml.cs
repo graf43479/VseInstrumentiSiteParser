@@ -136,34 +136,36 @@ namespace GUI
             bool isDaily = (bool)CheckBoxChoosenDaily.IsChecked;
             bool isFavorite = (bool)CheckBoxFavorites.IsChecked;
             bool isNonConst = (bool)CheckBoxDynamicOnly.IsChecked;
-            //IEnumerable<PriceDynamicModel> some = await dbLoader.GetDynamicAsync(true);
-            //IEnumerable<PriceDynamicModel> some = await dbLoader.GetDynamicAsync(true);
-            //var some = await dbLoader.GetDynamicAsync(true);
-            var some = await dbLoader.GetDynamicAsync(isDaily, isFavorite, isNonConst, TextBoxSearchPriceDynamic.Text);
-            //some = 
-            DataGridPriceDynamic.ItemsSource = some;
+            string searchTxt = TextBoxSearchPriceDynamic.Text;
+            List<DateTime> dates = new List<DateTime>();
+            await Task.Run(async () =>
+             {
+                 Dispatcher.Invoke(() => loadingIndicator0.Visibility = Visibility.Visible);
+                 var some = await dbLoader.GetDynamicAsync(isDaily, isFavorite, isNonConst, searchTxt);
+                 dates = await dbLoader.GetDatesAsync(isDaily);
+                 Dispatcher.Invoke(() =>
+                 {
+                     loadingIndicator0.Visibility = Visibility.Hidden;
+                     DataGridPriceDynamic.ItemsSource = some;                     
+                 });
+             });          
+            
 
             var defs = DataGridPriceDynamic.Columns;
 
             int i = 0;
-
-            List<DateTime> dates = await dbLoader.GetDatesAsync(isDaily);
+            //List<DateTime> dates = await dbLoader.GetDatesAsync(isDaily);
 
             foreach (var item in defs)
             {
                 if (item.Header.ToString().Contains("Date"))
                 {
-
-                    //item.Header = "Дата" + i;
                     item.Header = dates[i].Date.ToString("dd.MM.yyyy");
                     i++;
-                }
-                
+                }                
             }
             ButtonGraphic.IsEnabled = true;
-
         }
-
 
         private IEnumerable<DateTime> GetModelDates()
         {
@@ -307,8 +309,7 @@ namespace GUI
             MinimumPriceProductModel model = (MinimumPriceProductModel)dgv.SelectedItem;
             await GetUrlAsync(model.Code);
         }
-
-
+        
         //TODO: сделать условие для контролов, чтобы не было противоречий 
         private void sliderPriceStart_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
@@ -358,8 +359,7 @@ namespace GUI
         {            
             VendorInfo model = (VendorInfo)DataGridVendors.SelectedItem;
             if (model != null)
-            {
-                
+            {                
                 if (await dbLoader.DeleteVendorAsync(model.VendorName))
                 {
                     MessageBox.Show($"Вендор {model.VendorName} удален") ;
@@ -368,9 +368,7 @@ namespace GUI
                 {
                     MessageBox.Show("Ошибка при удалении вендора");
                 }
-            }
-            
-            
+            }     
         }
 
         private async void DataGridMinimum_MouseMove(object sender, MouseEventArgs e)
@@ -382,15 +380,11 @@ namespace GUI
                 if (dataGridRow != null)
                 {
                     int index = dataGridRow.GetIndex();
-                    // string combination = ((Items)DataGridMinimum.Items[index]).Name;
-                    //string combination = ((Items)DataGridMinimum.Items[index]).Name;
                     var combination = DataGridMinimum.CurrentItem; // Items[index]).Name;
 
                     if (combination!=null)
                     {
                         MinimumPriceProductModel model = (MinimumPriceProductModel)combination;
-                        //MinimumPriceProductModel
-                        // int len = combination.Length;
                         string val = "История цен: \n";
 
                         IList<int> history = await dbLoader.GetPriceHistoryAsync(model.ProductID);
@@ -399,37 +393,17 @@ namespace GUI
                         {
                             val += $"{item} \n";
                         }
-
                         dgTooltip.IsOpen = true;
                         dgTooltip.Content = val;
                     }
-                    
-                    //for (int i = 1; i <= len; i++)
-                    //{
-                    //    char ch = combination[i - 1];
-                    //    string tmp = $"Канал №{i}. Интенсивность помех: {ch}\n";
-                    //    message += tmp;
-                    //}
-                   // dgTooltip.Content = message.Substring(0, message.Length - 1);
                 }
             }
             catch (Exception)
             {
             }
         }
-
-       
-
-        //TextBoxVendorSubUrl
-
-      
-
-
-
-        //MessageBox.Show("Action");
     }
-
-
+    
     public static class DataExtensions
     {
         public static T GetParentOfType<T>(this DependencyObject element) where T : DependencyObject

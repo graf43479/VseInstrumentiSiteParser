@@ -72,7 +72,10 @@
                         <Button x:Name="ButtonGraphic" Content="Искать" Height="23" VerticalAlignment="Bottom" Width="194" Click="Button_ButtonGraphic" Margin="0,0,0,21"/>
                     </DockPanel>
                     <DockPanel HorizontalAlignment="Left" Height="511" LastChildFill="False" Margin="10,75,0,0" VerticalAlignment="Top" Width="1320" Grid.ColumnSpan="6">
-                        <DataGrid Name="DataGridPriceDynamic" Height="172" VerticalAlignment="Top" Width="1318" SelectionChanged="DataGridPriceDynamic_SelectionChanged" IsReadOnly="True" MouseDoubleClick="DataGridPriceDynamic_MouseDoubleClick"/>
+                        <Grid>
+                            <DataGrid Name="DataGridPriceDynamic" Height="172" VerticalAlignment="Top" Width="1318" SelectionChanged="DataGridPriceDynamic_SelectionChanged" IsReadOnly="True" MouseDoubleClick="DataGridPriceDynamic_MouseDoubleClick"/>
+                            <controls:LoadingIndicator x:Name="loadingIndicator0" Visibility="Hidden" RenderTransformOrigin="0.17,1.122" Margin="420,10,466,359"/>
+                        </Grid>
                     </DockPanel>
                     <DockPanel HorizontalAlignment="Left" Height="325" LastChildFill="False" Margin="10,261,0,0" VerticalAlignment="Top" Width="1320" Grid.ColumnSpan="6">
                         <Grid x:Name="GridDynamicData" Width="1318">
@@ -92,9 +95,10 @@
                                 <oxy:Plot.Series>                                    
                                     <oxy:LineSeries ItemsSource="{Binding Points}"  />                                    
                                 </oxy:Plot.Series>
-                            </oxy:Plot>-->
+                            </oxy:Plot>-->                        
                         </Grid>
                     </DockPanel>
+                    
                 </Grid>
             </TabItem>
             <TabItem Header="Производитель" Loaded="TabItem_Loaded">
@@ -115,7 +119,12 @@
             </TabItem>
             <TabItem Header="Исторический минимум">
                 <Grid Background="#FFE5E5E5">
-                    <DockPanel HorizontalAlignment="Left" Height="60" LastChildFill="False" Margin="10,10,0,0" VerticalAlignment="Top" Width="1320" RenderTransformOrigin="0.502,0.135">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="242*"/>
+                        <ColumnDefinition Width="21*"/>
+                        <ColumnDefinition Width="1077*"/>
+                    </Grid.ColumnDefinitions>
+                    <DockPanel HorizontalAlignment="Left" Height="60" LastChildFill="False" Margin="10,10,0,0" VerticalAlignment="Top" Width="1320" RenderTransformOrigin="0.502,0.135" Grid.ColumnSpan="3">
                         <ComboBox x:Name="VendorsComboBox"  Height="24" Margin="0,17,0,0" VerticalAlignment="Top" Width="151" />
                         <CheckBox x:Name="MinCheckBox"  Height="24" Margin="0,17,0,0" VerticalAlignment="Top" Width="75" Content="За сутки" ></CheckBox>
                         <Slider Name="sliderPriceStart" VerticalAlignment="Center" Width="240" HorizontalAlignment="Center" Margin="0,19,11,19" Maximum="100" SmallChange="1" ValueChanged="sliderPriceStart_ValueChanged"/>
@@ -124,18 +133,18 @@
                         <Label Name="LabelSliderPriceEnd" VerticalAlignment="Center" Width="70" HorizontalAlignment="Center" Margin="0,0,11,0"></Label>
                         <TextBox Name="TextBoxMinSearcher" Height="24" Margin="0,17,17,0" VerticalAlignment="Top" Width="250" ></TextBox>
                         <Button x:Name="SearchMin"  Content="Искать"  Height="24" Margin="0,17,0,0" VerticalAlignment="Top" Width="80" Click="SearchMin_Click" />
-                        <Button x:Name="BtnToExcel"  Content="В эксель"  Height="24" Margin="17,17,0,0" VerticalAlignment="Top" Width="80" Click="BtnToExcel_Click" />                        
+                        <Button x:Name="BtnToExcel"  Content="В эксель"  Height="24" Margin="17,17,0,0" VerticalAlignment="Top" Width="80" Click="BtnToExcel_Click" />
                     </DockPanel>
-                    <DockPanel HorizontalAlignment="Left" Height="511" LastChildFill="False" Margin="10,75,0,0" VerticalAlignment="Top" Width="1320">
+                    <DockPanel HorizontalAlignment="Left" Height="511" LastChildFill="False" Margin="10,75,0,0" VerticalAlignment="Top" Width="1320" Grid.ColumnSpan="3">
                         <DataGrid x:Name="DataGridMinimum" HorizontalAlignment="Left" Height="485" VerticalAlignment="Top" Width="1321" IsReadOnly="True" MouseDoubleClick="DataGridMinimum_MouseDoubleClick" MouseMove="DataGridMinimum_MouseMove">
                             <DataGrid.ToolTip>
                                 <ToolTip Name="dgTooltip" AutomationProperties.IsColumnHeader="True">
 
                                 </ToolTip>
                             </DataGrid.ToolTip>
-                        </DataGrid>                        
+                        </DataGrid>
                     </DockPanel>
-                    <controls:LoadingIndicator x:Name="loadingIndicator" Visibility="Hidden" RenderTransformOrigin="0.17,1.122" Margin="402,178,426,117"/>
+                    <controls:LoadingIndicator x:Name="loadingIndicator" Visibility="Hidden" RenderTransformOrigin="0.17,1.122" Margin="139,178,426,117" Grid.Column="2"/>
                 </Grid>
             </TabItem>
         </TabControl>
