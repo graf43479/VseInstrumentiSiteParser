@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:oxy="http://oxyplot.org/wpf"
         xmlns:local="clr-namespace:GUI"        
+        xmlns:controls="clr-namespace:GUI.UserControls"
         mc:Ignorable="d"
         Title="MainWindow" Height="678" Width="1377.5">
     <Window.DataContext>
@@ -123,17 +124,18 @@
                         <Label Name="LabelSliderPriceEnd" VerticalAlignment="Center" Width="70" HorizontalAlignment="Center" Margin="0,0,11,0"></Label>
                         <TextBox Name="TextBoxMinSearcher" Height="24" Margin="0,17,17,0" VerticalAlignment="Top" Width="250" ></TextBox>
                         <Button x:Name="SearchMin"  Content="Искать"  Height="24" Margin="0,17,0,0" VerticalAlignment="Top" Width="80" Click="SearchMin_Click" />
-                        <Button x:Name="BtnToExcel"  Content="В эксель"  Height="24" Margin="17,17,0,0" VerticalAlignment="Top" Width="80" Click="BtnToExcel_Click" />
+                        <Button x:Name="BtnToExcel"  Content="В эксель"  Height="24" Margin="17,17,0,0" VerticalAlignment="Top" Width="80" Click="BtnToExcel_Click" />                        
                     </DockPanel>
                     <DockPanel HorizontalAlignment="Left" Height="511" LastChildFill="False" Margin="10,75,0,0" VerticalAlignment="Top" Width="1320">
                         <DataGrid x:Name="DataGridMinimum" HorizontalAlignment="Left" Height="485" VerticalAlignment="Top" Width="1321" IsReadOnly="True" MouseDoubleClick="DataGridMinimum_MouseDoubleClick" MouseMove="DataGridMinimum_MouseMove">
                             <DataGrid.ToolTip>
                                 <ToolTip Name="dgTooltip" AutomationProperties.IsColumnHeader="True">
-                                    
+
                                 </ToolTip>
                             </DataGrid.ToolTip>
-                        </DataGrid>
+                        </DataGrid>                        
                     </DockPanel>
+                    <controls:LoadingIndicator x:Name="loadingIndicator" Visibility="Hidden" RenderTransformOrigin="0.17,1.122" Margin="402,178,426,117"/>
                 </Grid>
             </TabItem>
         </TabControl>

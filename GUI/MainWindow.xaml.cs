@@ -275,14 +275,30 @@ namespace GUI
             DataGridVendors.ItemsSource = some;
         }
 
-        private async void SearchMin_Click(object sender, RoutedEventArgs e)
+        private void SearchMin_Click(object sender, RoutedEventArgs e)
         {
+            SearchMinAsync();
+        }
+
+        private void SearchMinAsync()
+        {           
             string searchString = String.IsNullOrWhiteSpace(TextBoxMinSearcher.Text) ? null : TextBoxMinSearcher.Text;
             string vendor = VendorsComboBox.SelectedItem.ToString() == "Все" ? null : VendorsComboBox.SelectedItem.ToString();
             int rangeStart = (int)sliderPriceStart.Value;
-            int rangeEnd = (int)sliderPriceEnd.Value; ;
-            var result = await dbLoader.GetProductCurrentMinValueAsync((bool)MinCheckBox.IsChecked, vendor, searchString, rangeStart, rangeEnd);
-            DataGridMinimum.ItemsSource = result;
+            int rangeEnd = (int)sliderPriceEnd.Value;
+            bool isDaily = (bool)MinCheckBox.IsChecked;
+
+            Task.Run(() =>
+             {
+                 Dispatcher.Invoke(() => loadingIndicator.Visibility = Visibility.Visible);
+                 IEnumerable<MinimumPriceProductModel> result = dbLoader.GetProductCurrentMinValue(isDaily, vendor, searchString, rangeStart, rangeEnd);
+                 Dispatcher.Invoke(() =>
+                 {
+                     loadingIndicator.Visibility = Visibility.Hidden;
+                     
+                     DataGridMinimum.ItemsSource = result;
+                 });                
+             });        
         }
 
         private async void DataGridMinimum_MouseDoubleClick(object sender, MouseButtonEventArgs e)
